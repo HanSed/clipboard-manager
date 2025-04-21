@@ -38,8 +38,8 @@ impl<Db: DbTrait> AppState<Db> {
 
         column()
             .width(Length::Fill)
-            .spacing(20)
-            .padding(10)
+            .spacing(16)
+            .padding(8)
             .push(toggle_settings(
                 fl!("incognito"),
                 self.config.private_mode,
@@ -58,11 +58,8 @@ impl<Db: DbTrait> AppState<Db> {
         column()
             .push(self.top_bar())
             .push(self.content())
-            .spacing(20)
-            // .padding(10)
+            .spacing(16)
             .align_x(Alignment::Center)
-            // .width(Length::Fill)
-            // .height(Length::Fill)
             .height(Length::Fixed(530f32))
             .width(Length::Fixed(400f32))
             .into()
@@ -79,7 +76,7 @@ impl<Db: DbTrait> AppState<Db> {
                         .on_clear(AppMsg::Search("".into()))
                         .width(Length::Fill),
                 )
-                .push(horizontal_space().width(5))
+                .push(horizontal_space().width(4))
                 .into(),
             false => button::text(fl!("return_to_clipboard"))
                 .on_press(AppMsg::ReturnToClipboard)
@@ -88,7 +85,7 @@ impl<Db: DbTrait> AppState<Db> {
         };
 
         container(content)
-            .padding(Padding::new(15f32).bottom(0))
+            .padding(Padding::new(16f32).bottom(0))
             .into()
     }
 
@@ -129,18 +126,15 @@ impl<Db: DbTrait> AppState<Db> {
                     .collect();
 
                 let column = column::with_children(entries_view)
-                    .spacing(5f32)
-                    .padding(padding::right(10));
+                    .spacing(4f32)
+                    .padding(padding::right(8));
 
                 scrollable(column)
-                    // .id(SCROLLABLE_ID.clone())
-                    // XXX: why ?
-                    // .height(Length::FillPortion(2))
                     .into()
             }
         };
 
-        container(content).padding(padding::all(20).top(0)).into()
+        container(content).padding(padding::all(16).top(0)).into()
     }
 
     fn image_entry<'a>(
