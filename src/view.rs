@@ -1,4 +1,4 @@
-use std::{borrow::Cow, cmp::min, sync::LazyLock};
+use std::{borrow::Cow, cmp::min};
 
 use cosmic::{
     iced::{alignment::Horizontal, padding, Alignment, Length, Padding},
@@ -11,7 +11,7 @@ use cosmic::{
         self,
         button::{self},
         column, container, context_menu, horizontal_space, image, menu, row, scrollable, text,
-        text_input, toggler, Id,
+        text_input, toggler,
     },
     Element,
 };
@@ -20,12 +20,10 @@ use itertools::Itertools;
 use crate::{
     app::AppState,
     db::{Content, DbTrait, EntryTrait},
-    fl, icon, icon_button,
+    fl, icon,
     message::{AppMsg, ConfigMsg},
     utils::formatted_value,
 };
-
-pub static SCROLLABLE_ID: LazyLock<Id> = LazyLock::new(|| Id::new("scrollable"));
 
 impl<Db: DbTrait> AppState<Db> {
     pub fn quick_settings_view(&self) -> Element<'_, AppMsg> {
@@ -68,7 +66,6 @@ impl<Db: DbTrait> AppState<Db> {
         column()
             .push(self.top_bar())
             .push(self.content())
-            // .push(self.page_actions())
             .spacing(20)
             // .padding(10)
             .align_x(Alignment::Center)
@@ -86,9 +83,6 @@ impl<Db: DbTrait> AppState<Db> {
             })
             .into()
     }
-    pub fn page_count(&self) -> usize {
-        self.db.len() / self.config.maximum_entries_by_page.get() as usize
-    }
 
     fn top_bar(&self) -> Element<'_, AppMsg> {
         let content: Element<_> = match self.qr_code.is_none() {
@@ -105,20 +99,6 @@ impl<Db: DbTrait> AppState<Db> {
                         }),
                 )
                 .push(horizontal_space().width(5))
-                .push(
-                    icon_button!("arrow_back_ios_new24").on_press_maybe(if self.page > 0 {
-                        Some(AppMsg::PreviousPage)
-                    } else {
-                        None
-                    }),
-                )
-                .push(icon_button!("arrow_forward_ios24").on_press_maybe(
-                    if self.page < self.page_count() {
-                        Some(AppMsg::NextPage)
-                    } else {
-                        None
-                    },
-                ))
                 .into(),
             false => button::text(fl!("return_to_clipboard"))
                 .on_press(AppMsg::ReturnToClipboard)
@@ -145,9 +125,7 @@ impl<Db: DbTrait> AppState<Db> {
                 container(qr_code_content).center(Length::Fill).into()
             }
             None => {
-                let maximum_entries_by_page = self.config.maximum_entries_by_page.get() as usize;
-                let range =
-                    self.page * maximum_entries_by_page..(self.page + 1) * maximum_entries_by_page;
+                let range = 0..self.db.len();
 
                 let entries_view: Vec<_> = self
                     .db
