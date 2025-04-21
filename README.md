@@ -52,7 +52,3 @@ To build and install the debug build
 ```sh
 just build-debug && sudo just debug=1 install && pkill cosmic-panel
 ```
-
-## Known bugs
-
-- Horizontal layout is currently broken

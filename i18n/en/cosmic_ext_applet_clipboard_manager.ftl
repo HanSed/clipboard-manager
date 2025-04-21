@@ -5,7 +5,6 @@ clear_entries = Clear
 show_qr_code = Show QR code
 return_to_clipboard = Return to clipboard
 qr_code_error = Error while generating the QR code
-horizontal_layout = Horizontal
 add_favorite = Add Favorite
 remove_favorite = Remove Favorite
 unique_session = Unique session

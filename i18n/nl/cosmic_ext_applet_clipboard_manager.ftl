@@ -5,7 +5,6 @@ clear_entries = Opschonen
 show_qr_code = QR-code tonen
 return_to_clipboard = Terug naar klembord
 qr_code_error = Kon geen QR-code genereren
-horizontal_layout = Horizontaal
 add_favorite = Favoriet toevoegen
 remove_favorite = Favoriet verwijderen
 unique_session = Unieke sessie

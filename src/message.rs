@@ -30,6 +30,5 @@ pub enum AppMsg {
 #[derive(Clone, Debug)]
 pub enum ConfigMsg {
     PrivateMode(bool),
-    Horizontal(bool),
     UniqueSession(bool),
 }

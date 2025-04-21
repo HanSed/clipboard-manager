@@ -2,10 +2,7 @@ use std::{borrow::Cow, cmp::min};
 
 use cosmic::{
     iced::{alignment::Horizontal, padding, Alignment, Length, Padding},
-    iced_widget::{
-        scrollable::{Direction, Scrollbar},
-        Stack,
-    },
+    iced_widget::Stack,
     theme::Button,
     widget::{
         self,
@@ -49,11 +46,6 @@ impl<Db: DbTrait> AppState<Db> {
                 |v| AppMsg::Config(ConfigMsg::PrivateMode(v)),
             ))
             .push(toggle_settings(
-                fl!("horizontal_layout"),
-                self.config.horizontal,
-                |v| AppMsg::Config(ConfigMsg::Horizontal(v)),
-            ))
-            .push(toggle_settings(
                 fl!("unique_session"),
                 self.config.unique_session,
                 |v| AppMsg::Config(ConfigMsg::UniqueSession(v)),
@@ -71,16 +63,8 @@ impl<Db: DbTrait> AppState<Db> {
             .align_x(Alignment::Center)
             // .width(Length::Fill)
             // .height(Length::Fill)
-            .height(if self.config.horizontal {
-                Length::Fill
-            } else {
-                Length::Fixed(530f32)
-            })
-            .width(if self.config.horizontal {
-                Length::Fill
-            } else {
-                Length::Fixed(400f32)
-            })
+            .height(Length::Fixed(530f32))
+            .width(Length::Fixed(400f32))
             .into()
     }
 
@@ -93,19 +77,13 @@ impl<Db: DbTrait> AppState<Db> {
                         .on_input(AppMsg::Search)
                         .on_paste(AppMsg::Search)
                         .on_clear(AppMsg::Search("".into()))
-                        .width(match self.config.horizontal {
-                            true => Length::Fixed(250f32),
-                            false => Length::Fill,
-                        }),
+                        .width(Length::Fill),
                 )
                 .push(horizontal_space().width(5))
                 .into(),
             false => button::text(fl!("return_to_clipboard"))
                 .on_press(AppMsg::ReturnToClipboard)
-                .width(match self.config.horizontal {
-                    true => Length::Shrink,
-                    false => Length::Fill,
-                })
+                .width(Length::Fill)
                 .into(),
         };
 
@@ -150,26 +128,15 @@ impl<Db: DbTrait> AppState<Db> {
                     })
                     .collect();
 
-                if self.config.horizontal {
-                    let column = row::with_children(entries_view)
-                        .spacing(5f32)
-                        .padding(padding::bottom(10));
+                let column = column::with_children(entries_view)
+                    .spacing(5f32)
+                    .padding(padding::right(10));
 
-                    scrollable(column)
-                        // .id(SCROLLABLE_ID.clone())
-                        .direction(Direction::Horizontal(Scrollbar::default()))
-                        .into()
-                } else {
-                    let column = column::with_children(entries_view)
-                        .spacing(5f32)
-                        .padding(padding::right(10));
-
-                    scrollable(column)
-                        // .id(SCROLLABLE_ID.clone())
-                        // XXX: why ?
-                        // .height(Length::FillPortion(2))
-                        .into()
-                }
+                scrollable(column)
+                    // .id(SCROLLABLE_ID.clone())
+                    // XXX: why ?
+                    // .height(Length::FillPortion(2))
+                    .into()
             }
         };
 
@@ -239,12 +206,7 @@ impl<Db: DbTrait> AppState<Db> {
         is_focused: bool,
         content: &'a str,
     ) -> Element<'a, AppMsg> {
-        // todo: remove this max line things: display the maximum
-        if self.config.horizontal {
-            self.base_entry(entry, is_focused, text(formatted_value(content, 10, 500)))
-        } else {
-            self.base_entry(entry, is_focused, text(formatted_value(content, 5, 200)))
-        }
+        self.base_entry(entry, is_focused, text(formatted_value(content, 5, 200)))
     }
 
     fn base_entry<'a>(
@@ -297,13 +259,7 @@ impl<Db: DbTrait> AppState<Db> {
                 }),
             });
 
-        let btn: Element<_> = if self.config.horizontal {
-            container(btn.width(Length::Fill).height(Length::Fill))
-                .max_width(350f32)
-                .into()
-        } else {
-            btn.width(Length::Fill).into()
-        };
+        let btn: Element<_> = btn.width(Length::Fill).into();
 
         let content: Element<_> = if entry.is_favorite() {
             Stack::new()

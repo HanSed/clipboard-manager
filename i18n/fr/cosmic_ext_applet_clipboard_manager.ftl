@@ -5,7 +5,6 @@ clear_entries = Nettoyer
 show_qr_code = Afficher le code QR
 return_to_clipboard = Retourner au presse-papier
 qr_code_error = Erreur pendant la génération du code QR
-horizontal_layout = Horizontal
 add_favorite = Ajouter aux Favoris
 remove_favorite = Retirer des Favoris
 unique_session = Unique session

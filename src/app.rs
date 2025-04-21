@@ -7,11 +7,7 @@ use cosmic::iced::{self, Limits};
 
 use cosmic::iced_futures::Subscription;
 use cosmic::iced_runtime::core::window;
-use cosmic::iced_runtime::platform_specific::wayland::layer_surface::SctkLayerSurfaceSettings;
 use cosmic::iced_widget::qr_code;
-use cosmic::iced_winit::commands::layer_surface::{
-    self, destroy_layer_surface, get_layer_surface, KeyboardInteractivity,
-};
 use cosmic::iced_winit::commands::popup::{destroy_popup, get_popup};
 use cosmic::widget::{MouseArea, Space};
 
@@ -118,11 +114,7 @@ impl<Db: DbTrait> AppState<Db> {
 
             self.last_quit = Some((Utc::now().timestamp_millis(), popup.kind));
 
-            if self.config.horizontal {
-                destroy_layer_surface(popup.id)
-            } else {
-                destroy_popup(popup.id)
-            }
+            destroy_popup(popup.id)
         } else {
             Task::none()
         }
@@ -146,34 +138,20 @@ impl<Db: DbTrait> AppState<Db> {
 
         match kind {
             PopupKind::Popup => {
-                if self.config.horizontal {
-                    get_layer_surface(SctkLayerSurfaceSettings {
-                        id: new_id,
-                        keyboard_interactivity: KeyboardInteractivity::OnDemand,
-                        anchor: layer_surface::Anchor::BOTTOM
-                            | layer_surface::Anchor::LEFT
-                            | layer_surface::Anchor::RIGHT,
-                        namespace: "clipboard manager".into(),
-                        size: Some((None, Some(350))),
-                        size_limits: Limits::NONE.min_width(1.0).min_height(1.0),
-                        ..Default::default()
-                    })
-                } else {
-                    let mut popup_settings = self.core.applet.get_popup_settings(
-                        self.core.main_window_id().unwrap(),
-                        new_id,
-                        None,
-                        None,
-                        None,
-                    );
+                let mut popup_settings = self.core.applet.get_popup_settings(
+                    self.core.main_window_id().unwrap(),
+                    new_id,
+                    None,
+                    None,
+                    None,
+                );
 
-                    popup_settings.positioner.size_limits = Limits::NONE
-                        .min_width(300.0)
-                        .max_width(400.0)
-                        .min_height(200.0)
-                        .max_height(500.0);
-                    get_popup(popup_settings)
-                }
+                popup_settings.positioner.size_limits = Limits::NONE
+                    .min_width(300.0)
+                    .max_width(400.0)
+                    .min_height(200.0)
+                    .max_height(500.0);
+                get_popup(popup_settings)
             }
             PopupKind::QuickSettings => {
                 let mut popup_settings = self.core.applet.get_popup_settings(
@@ -353,10 +331,8 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
                     let message = match e {
                         Named::Enter => EventMsg::Enter,
                         Named::Escape => EventMsg::Quit,
-                        Named::ArrowDown if !self.config.horizontal => EventMsg::Next,
-                        Named::ArrowUp if !self.config.horizontal => EventMsg::Previous,
-                        Named::ArrowLeft if self.config.horizontal => EventMsg::Previous,
-                        Named::ArrowRight if self.config.horizontal => EventMsg::Next,
+                        Named::ArrowDown => EventMsg::Next,
+                        Named::ArrowUp => EventMsg::Previous,
                         _ => EventMsg::None,
                     };
 
@@ -430,9 +406,6 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
                 ConfigMsg::PrivateMode(private_mode) => {
                     config_set!(private_mode, private_mode);
                     PRIVATE_MODE.store(private_mode, atomic::Ordering::Relaxed);
-                }
-                ConfigMsg::Horizontal(horizontal) => {
-                    config_set!(horizontal, horizontal);
                 }
                 ConfigMsg::UniqueSession(unique_session) => {
                     config_set!(unique_session, unique_session);
