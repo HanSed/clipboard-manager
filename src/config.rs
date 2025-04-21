@@ -1,5 +1,4 @@
 use std::{
-    num::{NonZero, NonZeroU32},
     sync::atomic::AtomicBool,
     time::Duration,
 };
@@ -33,7 +32,6 @@ pub struct Config {
     pub horizontal: bool,
     /// Reset the database at each login
     pub unique_session: bool,
-    pub maximum_entries_by_page: NonZeroU32,
     pub preferred_mime_types: Vec<String>,
 }
 
@@ -54,7 +52,6 @@ impl Default for Config {
             maximum_entries_number: Some(500),
             horizontal: false,
             unique_session: false,
-            maximum_entries_by_page: NonZero::new(50).unwrap(),
             preferred_mime_types: Vec::new(),
         }
     }

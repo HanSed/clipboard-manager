@@ -22,8 +22,8 @@ pub enum AppMsg {
     Db(DbMessage),
     ReturnToClipboard,
     Config(ConfigMsg),
-    NextPage,
-    PreviousPage,
+    AddFavorite(EntryId),
+    RemoveFavorite(EntryId),
     ContextMenu(ContextMenuMsg),
     LinkClicked(markdown::Url),
 }

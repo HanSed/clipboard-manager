@@ -1,32 +1,30 @@
-use std::{borrow::Cow, cmp::min, sync::LazyLock};
+use std::{borrow::Cow, cmp::min};
 
 use cosmic::{
-    Apply, Element,
-    iced::{Alignment, Length, alignment::Horizontal, padding},
-    iced_widget::{
-        Stack,
+    iced::{alignment::Horizontal, padding, Alignment, Length}, iced_widget::{
         scrollable::{Direction, Scrollbar},
+        Stack,
     },
     theme::Button,
     widget::{
-        self, Id,
+        self,
         button::{self},
         column, container, horizontal_space, image, markdown, row, scrollable, text, text_input,
         toggler, vertical_space,
     },
+    Apply,
+    Element,
 };
 use itertools::Itertools;
 
 use crate::{
     app::{AppState, ClipboardState, ErrorState},
     db::{Content, DbTrait, EntryTrait, MimeDataMap},
-    fl, icon, icon_button,
+    fl, icon,
     message::{AppMsg, ConfigMsg, ContextMenuMsg},
     my_widget,
     utils::formatted_value,
 };
-
-pub static SCROLLABLE_ID: LazyLock<Id> = LazyLock::new(|| Id::new("scrollable"));
 
 impl<Db: DbTrait> AppState<Db> {
     pub fn quick_settings_view(&self) -> Element<'_, AppMsg> {
@@ -85,9 +83,6 @@ impl<Db: DbTrait> AppState<Db> {
         })
         .into()
     }
-    pub fn page_count(&self) -> usize {
-        self.db.len() / self.config.maximum_entries_by_page.get() as usize
-    }
 
     fn list_view(&self) -> Element<'_, AppMsg> {
         column()
@@ -106,30 +101,12 @@ impl<Db: DbTrait> AppState<Db> {
                                 }),
                         )
                         .push(horizontal_space().width(5))
-                        .push(icon_button!("arrow_back_ios_new24").on_press_maybe(
-                            if self.page > 0 {
-                                Some(AppMsg::PreviousPage)
-                            } else {
-                                None
-                            },
-                        ))
-                        .push(icon_button!("arrow_forward_ios24").on_press_maybe(
-                            if self.page < self.page_count() {
-                                Some(AppMsg::NextPage)
-                            } else {
-                                None
-                            },
-                        )),
                 )
                 .padding(padding::all(15f32).bottom(0)),
             )
             .push(
                 container({
-                    let maximum_entries_by_page =
-                        self.config.maximum_entries_by_page.get() as usize;
-                    let range = self.page * maximum_entries_by_page
-                        ..(self.page + 1) * maximum_entries_by_page;
-
+                    let range = 0..self.db.len();
                     let entries_view: Vec<_> = self
                         .db
                         .either_iter()
