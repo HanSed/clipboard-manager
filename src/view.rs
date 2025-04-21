@@ -42,8 +42,8 @@ impl<Db: DbTrait> AppState<Db> {
 
         column()
             .width(Length::Fill)
-            .spacing(20)
-            .padding(10)
+            .spacing(16)
+            .padding(8)
             .push(toggle_settings(
                 fl!("incognito"),
                 self.config.private_mode,
@@ -84,9 +84,9 @@ impl<Db: DbTrait> AppState<Db> {
                                 .on_clear(AppMsg::Search("".into()))
                                 .width(Length::Fill),
                         )
-                        .push(horizontal_space().width(5))
+                        .push(horizontal_space().width(4))
                 )
-                .padding(padding::all(15f32).bottom(0)),
+                .padding(padding::all(16f32).bottom(0)),
             )
             .push(
                 container({
@@ -116,15 +116,15 @@ impl<Db: DbTrait> AppState<Db> {
 
 
                         let column = column::with_children(entries_view)
-                            .spacing(5f32)
-                            .padding(padding::right(10));
+                            .spacing(4f32)
+                            .padding(padding::right(8));
 
                         scrollable(column)
                             // .id(SCROLLABLE_ID.clone())
                             // XXX: why ?
                             // .height(Length::FillPortion(2))
                 })
-                .padding(padding::all(20).top(0)),
+                .padding(padding::all(16).top(0)),
             )
             .spacing(20)
             .align_x(Alignment::Center)
@@ -142,7 +142,7 @@ impl<Db: DbTrait> AppState<Db> {
                         .on_press(AppMsg::ReturnToClipboard)
                         .width(Length::Fill),
                 )
-                .padding(padding::all(15f32).bottom(0)),
+                .padding(padding::all(16f32).bottom(0)),
             )
             .push(
                 container(
@@ -152,7 +152,7 @@ impl<Db: DbTrait> AppState<Db> {
                     })
                     .center(Length::Fill),
                 )
-                .padding(padding::all(20).top(0)),
+                .padding(padding::all(16).top(0)),
             )
             .spacing(20)
             .align_x(Alignment::Center)
@@ -197,7 +197,7 @@ impl<Db: DbTrait> AppState<Db> {
                     .align_x(Horizontal::Center)
                     .width(Length::Fill)
                     .height(Length::Fill)
-                    .padding(15)
+                    .padding(16)
                     .into()
             }
             ErrorState::Other(e) => text(e.to_string()).into(),
@@ -337,7 +337,7 @@ impl<Db: DbTrait> AppState<Db> {
         };
 
         let overlay: Element<_> = column()
-            .padding(3)
+            .padding(4)
             .push(if entry.is_favorite() {
                 button::text(fl!("remove_favorite"))
                     .on_press(ContextMenuMsg::RemoveFavorite(entry.id()))
@@ -357,7 +357,7 @@ impl<Db: DbTrait> AppState<Db> {
 
         let overlay = container(overlay)
             .class(cosmic::theme::Container::Card)
-            .padding(padding::all(5));
+            .padding(padding::all(4));
 
         my_widget::context_menu(content, overlay).into()
     }
