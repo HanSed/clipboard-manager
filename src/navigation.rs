@@ -30,12 +30,15 @@ pub fn sub() -> Subscription<EventMsg> {
         ) => Some(EventMsg::Quit),
         // Pass relevant key events
         (
-            Event::Keyboard(KeyPressed {key: Key::Named(named @ 
-                (Named::Enter | Named::Escape | Named::ArrowDown | Named::ArrowUp | Named::ArrowLeft | Named::ArrowRight)),
-                 ..}),
-            event::Status::Ignored,
-        ) => 
-            Some(EventMsg::Event(named)),
+            Event::Keyboard(KeyPressed {
+                key:
+                    Key::Named(
+                        named @ (Named::Enter | Named::Escape | Named::ArrowDown | Named::ArrowUp),
+                    ),
+                ..
+            }),
+            _,
+        ) => Some(EventMsg::Event(named)),
         _ => None,
     })
 }
