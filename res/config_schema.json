@@ -27,11 +27,6 @@
       "format": "uint32",
       "minimum": 0.0
     },
-    "horizontal": {
-      "description": "Enable horizontal layout",
-      "default": false,
-      "type": "boolean"
-    },
     "unique_session": {
       "description": "Reset the database at each login",
       "default": false,

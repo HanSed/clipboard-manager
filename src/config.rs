@@ -28,8 +28,6 @@ pub struct Config {
     /// In second
     pub maximum_entries_lifetime: Option<u64>,
     pub maximum_entries_number: Option<u32>,
-    /// Enable horizontal layout
-    pub horizontal: bool,
     /// Reset the database at each login
     pub unique_session: bool,
     pub preferred_mime_types: Vec<String>,
@@ -50,7 +48,6 @@ impl Default for Config {
             private_mode: false,
             maximum_entries_lifetime: Some(30), // 30 days,
             maximum_entries_number: Some(500),
-            horizontal: false,
             unique_session: false,
             preferred_mime_types: Vec::new(),
         }

@@ -49,11 +49,6 @@ impl<Db: DbTrait> AppState<Db> {
                 self.config.private_mode,
                 |v| AppMsg::Config(ConfigMsg::PrivateMode(v)),
             ))
-            // .push(toggle_settings(
-            //     fl!("horizontal_layout"),
-            //     self.config.horizontal,
-            //     |v| AppMsg::Config(ConfigMsg::Horizontal(v)),
-            // ))
             .push(toggle_settings(
                 fl!("unique_session"),
                 self.config.unique_session,
@@ -71,16 +66,8 @@ impl<Db: DbTrait> AppState<Db> {
         } else {
             self.list_view()
         })
-        .height(if self.config.horizontal {
-            Length::Fill
-        } else {
-            Length::Fixed(530f32)
-        })
-        .width(if self.config.horizontal {
-            Length::Fill
-        } else {
-            Length::Fixed(400f32)
-        })
+        .height(            Length::Fixed(530f32))
+        .width(Length::Fixed(400f32))
         .into()
     }
 
@@ -95,10 +82,7 @@ impl<Db: DbTrait> AppState<Db> {
                                 .on_input(AppMsg::Search)
                                 .on_paste(AppMsg::Search)
                                 .on_clear(AppMsg::Search("".into()))
-                                .width(match self.config.horizontal {
-                                    true => Length::Fixed(250f32),
-                                    false => Length::Fill,
-                                }),
+                                .width(Length::Fill),
                         )
                         .push(horizontal_space().width(5))
                 )
@@ -130,23 +114,7 @@ impl<Db: DbTrait> AppState<Db> {
                         })
                         .collect();
 
-                    if self.config.horizontal {
-                        let column = row::with_children(entries_view)
-                            .spacing(5f32)
-                            .padding(padding::bottom(10))
-                            .width(Length::Shrink)
-                            .apply(Element::from);
 
-                        cosmic::iced::widget::Scrollable::with_direction(
-                            column,
-                            Direction::Horizontal(Scrollbar::new()),
-                        )
-                        .scroller_width(8.0)
-                        .scrollbar_width(8.0)
-                        // scrollable::horizontal(column)
-                        // .id(SCROLLABLE_ID.clone())
-                        .apply(Element::from)
-                    } else {
                         let column = column::with_children(entries_view)
                             .spacing(5f32)
                             .padding(padding::right(10));
@@ -155,8 +123,6 @@ impl<Db: DbTrait> AppState<Db> {
                             // .id(SCROLLABLE_ID.clone())
                             // XXX: why ?
                             // .height(Length::FillPortion(2))
-                            .into()
-                    }
                 })
                 .padding(padding::all(20).top(0)),
             )
@@ -174,10 +140,7 @@ impl<Db: DbTrait> AppState<Db> {
                 container(
                     button::text(fl!("return_to_clipboard"))
                         .on_press(AppMsg::ReturnToClipboard)
-                        .width(match self.config.horizontal {
-                            true => Length::Shrink,
-                            false => Length::Fill,
-                        }),
+                        .width(Length::Fill),
                 )
                 .padding(padding::all(15f32).bottom(0)),
             )
@@ -304,12 +267,7 @@ impl<Db: DbTrait> AppState<Db> {
         is_focused: bool,
         content: &'a str,
     ) -> Element<'a, AppMsg> {
-        // todo: remove this max line things: display the maximum
-        if self.config.horizontal {
-            self.base_entry(entry, is_focused, text(formatted_value(content, 10, 500)))
-        } else {
-            self.base_entry(entry, is_focused, text(formatted_value(content, 5, 200)))
-        }
+        self.base_entry(entry, is_focused, text(formatted_value(content, 5, 200)))
     }
 
     fn base_entry<'a>(
@@ -362,13 +320,7 @@ impl<Db: DbTrait> AppState<Db> {
                 }),
             });
 
-        let btn: Element<_> = if self.config.horizontal {
-            container(btn.width(Length::Fill).height(Length::Fill))
-                .max_width(350f32)
-                .into()
-        } else {
-            btn.width(Length::Fill).into()
-        };
+        let btn: Element<_> = btn.width(Length::Fill).into();
 
         let content: Element<_> = if entry.is_favorite() {
             Stack::new()
