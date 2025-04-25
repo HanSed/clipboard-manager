@@ -1,3 +1,5 @@
+use cosmic::iced_widget::scrollable::Viewport;
+
 use crate::{
     clipboard::ClipboardMessage,
     config::Config,
@@ -25,6 +27,7 @@ pub enum AppMsg {
     Config(ConfigMsg),
     AddFavorite(EntryId),
     RemoveFavorite(EntryId),
+    ViewportChanged(Viewport)
 }
 
 #[derive(Clone, Debug)]

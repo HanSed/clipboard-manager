@@ -1,4 +1,4 @@
-use std::{borrow::Cow, cmp::min};
+use std::{borrow::Cow, cmp::min, sync::LazyLock};
 
 use cosmic::{
     iced::{alignment::Horizontal, padding, Alignment, Length, Padding},
@@ -8,7 +8,7 @@ use cosmic::{
         self,
         button::{self},
         column, container, context_menu, horizontal_space, image, menu, row, scrollable, text,
-        text_input, toggler,
+        text_input, toggler, Id,
     },
     Element,
 };
@@ -21,6 +21,11 @@ use crate::{
     message::{AppMsg, ConfigMsg},
     utils::formatted_value,
 };
+
+pub static SCROLLABLE_ID: LazyLock<Id> = LazyLock::new(|| Id::new("scrollable"));
+
+pub const ENTRY_HEIGHT: f32 = 96.0;
+pub const ENTRY_SPACING: f32 = 4.0;
 
 impl<Db: DbTrait> AppState<Db> {
     pub fn quick_settings_view(&self) -> Element<'_, AppMsg> {
@@ -126,10 +131,13 @@ impl<Db: DbTrait> AppState<Db> {
                     .collect();
 
                 let column = column::with_children(entries_view)
-                    .spacing(4f32)
+                    .spacing(ENTRY_SPACING)
                     .padding(padding::right(8));
 
-                scrollable(column).into()
+                scrollable(column)
+                .id(SCROLLABLE_ID.clone())
+                .on_scroll(|v|AppMsg::ViewportChanged(v))
+                .into()
             }
         };
 
@@ -252,7 +260,7 @@ impl<Db: DbTrait> AppState<Db> {
                 }),
             });
 
-        let btn: Element<_> = btn.width(Length::Fill).into();
+        let btn: Element<_> = btn.width(Length::Fill).height(Length::Fixed(ENTRY_HEIGHT)).into();
 
         let content: Element<_> = if entry.is_favorite() {
             Stack::new()
