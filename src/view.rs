@@ -17,14 +17,7 @@ use cosmic::{
 };
 use itertools::Itertools;
 
-use crate::{
-    app::{AppState, ClipboardState, ErrorState},
-    db::{Content, DbTrait, EntryTrait, MimeDataMap},
-    fl, icon,
-    message::{AppMsg, ConfigMsg, ContextMenuMsg},
-    my_widget,
-    utils::formatted_value,
-};
+use crate::{app::{AppState, ClipboardState, ErrorState}, db::{Content, DbTrait, EntryTrait, MimeDataMap}, fl, icon, icon_button, message::{AppMsg, ConfigMsg, ContextMenuMsg}, my_widget, utils::formatted_value};
 
 impl<Db: DbTrait> AppState<Db> {
     pub fn quick_settings_view(&self) -> Element<'_, AppMsg> {
@@ -329,7 +322,10 @@ impl<Db: DbTrait> AppState<Db> {
                     column()
                         .align_x(Horizontal::Right)
                         .width(Length::Fill)
-                        .push(icon!("star24")),
+                        .push(
+                            icon_button!("star_fill24")
+                                .on_press(AppMsg::RemoveFavorite(entry.id())),
+                        ),
                 )
                 .into()
         } else {
