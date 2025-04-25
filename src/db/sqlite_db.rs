@@ -659,17 +659,12 @@ impl DbTrait for DbSqlite {
     }
 
     fn iter(&self) -> impl Iterator<Item = &'_ Self::Entry> {
-        self.favorites
-            .fav()
-            .iter()
+        self.times
+            .values()
             .map(|id| &self.entries[id])
-            .chain(
-                self.times
-                    .values()
-                    .map(|id| &self.entries[id])
-                    .filter(|e| !e.is_favorite)
-                    .rev(),
-            )
+            .filter(|e| !e.is_favorite)
+            .rev()
+            .chain(self.favorites.fav().iter().map(|id| &self.entries[id]).rev())
     }
 
     fn search_iter(&self) -> impl Iterator<Item = &'_ Self::Entry> {

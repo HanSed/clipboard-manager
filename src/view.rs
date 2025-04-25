@@ -17,7 +17,7 @@ use itertools::Itertools;
 use crate::{
     app::AppState,
     db::{Content, DbTrait, EntryTrait},
-    fl, icon,
+    fl, icon_button,
     message::{AppMsg, ConfigMsg},
     utils::formatted_value,
 };
@@ -129,8 +129,7 @@ impl<Db: DbTrait> AppState<Db> {
                     .spacing(4f32)
                     .padding(padding::right(8));
 
-                scrollable(column)
-                    .into()
+                scrollable(column).into()
             }
         };
 
@@ -262,7 +261,10 @@ impl<Db: DbTrait> AppState<Db> {
                     column()
                         .align_x(Horizontal::Right)
                         .width(Length::Fill)
-                        .push(icon!("star24")),
+                        .push(
+                            icon_button!("star_fill24")
+                                .on_press(AppMsg::RemoveFavorite(entry.id())),
+                        ),
                 )
                 .into()
         } else {
