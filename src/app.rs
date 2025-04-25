@@ -26,11 +26,13 @@ use crate::db::{DbMessage, DbTrait, EntryTrait, MimeDataMap};
 use crate::message::{AppMsg, ConfigMsg, ContextMenuMsg};
 use crate::navigation::EventMsg;
 use crate::utils::task_message;
+use crate::view::{ENTRY_HEIGHT, ENTRY_SPACING, SCROLLABLE_ID};
 use crate::{clipboard, clipboard_watcher, config, navigation};
 
 use cosmic::cosmic_config;
 use std::sync::atomic::{self};
 use std::time::Duration;
+use cosmic::iced_widget::scrollable::AbsoluteOffset;
 
 pub const QUALIFIER: &str = "io.github";
 pub const ORG: &str = "cosmic_utils";
@@ -48,6 +50,7 @@ pub struct AppState<Db: DbTrait> {
     pub qr_code: Option<Result<qr_code::Data, ()>>,
     last_quit: Option<(i64, PopupKind)>,
     pub preferred_mime_types_regex: Vec<Regex>,
+    pub scroll_viewport: (f32, f32),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -92,14 +95,39 @@ impl<Db: DbTrait> AppState<Db> {
         if self.db.len() > 0 {
             self.focused = (self.focused + 1) % self.db.len();
         }
-        Task::none()
+        self.update_scroll(true)
     }
 
     fn focus_previous(&mut self) -> Task<AppMsg> {
         if self.db.len() > 0 {
             self.focused = (self.focused + self.db.len() - 1) % self.db.len();
         }
-        Task::none()
+        self.update_scroll(false)
+    }
+
+    fn update_scroll(&mut self, scroll_down: bool) -> Task<AppMsg> {
+        let y = self.focused as f32 * (ENTRY_HEIGHT + ENTRY_SPACING);
+        let (view_top, view_bottom) = self.scroll_viewport;
+
+        if y >= view_top && y + ENTRY_HEIGHT < view_bottom {
+            // Only scroll if focused entry is not in view
+            return Task::none();
+        }
+
+        if scroll_down {
+            // Since we are moving down align for focused element to be last in list
+            iced::widget::scrollable::scroll_to(
+                SCROLLABLE_ID.clone(),
+                AbsoluteOffset {
+                    x: 0.0,
+                    // y - entry_height - viewport_height => align bottom of this entry to the bottom of viewport
+                    y: y + ENTRY_HEIGHT - (view_bottom - view_top) ,
+                },
+            )
+        } else {
+            // Since we are moving up aling for focused element to be first in list
+            iced::widget::scrollable::scroll_to(SCROLLABLE_ID.clone(), AbsoluteOffset { x: 0.0, y })
+        }
     }
 
     fn toggle_popup(&mut self, kind: PopupKind) -> Task<AppMsg> {
@@ -214,6 +242,7 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
             focused: 0,
             qr_code: None,
             last_quit: None,
+            scroll_viewport: (0.0,0.0),
             preferred_mime_types_regex: config
                 .preferred_mime_types
                 .iter()
@@ -454,6 +483,12 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
                 if let Err(e) = open::that(url.as_str()) {
                     error!("{e}");
                 }
+            }
+            AppMsg::ViewportChanged(viewport) => {
+                self.scroll_viewport = (
+                    viewport.absolute_offset().y,
+                    viewport.absolute_offset().y + viewport.bounds().height,
+                )
             }
         }
         Task::none()

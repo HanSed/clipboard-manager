@@ -1,23 +1,29 @@
-use std::{borrow::Cow, cmp::min};
+use std::{borrow::Cow, cmp::min, sync::LazyLock};
 
 use cosmic::{
-    iced::{alignment::Horizontal, padding, Alignment, Length}, iced_widget::{
-        scrollable::{Direction, Scrollbar},
-        Stack,
-    },
+    iced::{alignment::Horizontal, padding, Length}, iced_widget::Stack,
     theme::Button,
     widget::{
-        self,
         button::{self},
-        column, container, horizontal_space, image, markdown, row, scrollable, text, text_input,
-        toggler, vertical_space,
+        column, container, horizontal_space, image, row, scrollable, text, text_input,
+        toggler,
     },
     Apply,
     Element,
 };
+use cosmic::iced::{widget, Alignment};
+use cosmic::iced_widget::{markdown, vertical_space};
+use cosmic::widget::Id;
 use itertools::Itertools;
 
-use crate::{app::{AppState, ClipboardState, ErrorState}, db::{Content, DbTrait, EntryTrait, MimeDataMap}, fl, icon, icon_button, message::{AppMsg, ConfigMsg, ContextMenuMsg}, my_widget, utils::formatted_value};
+use crate::{app::{AppState, ClipboardState}, db::{Content, DbTrait, EntryTrait}, fl, icon_button, message::{AppMsg, ConfigMsg, ContextMenuMsg}, my_widget, utils::formatted_value};
+use crate::app::ErrorState;
+use crate::db::MimeDataMap;
+
+pub static SCROLLABLE_ID: LazyLock<Id> = LazyLock::new(|| Id::new("scrollable"));
+
+pub const ENTRY_HEIGHT: f32 = 96.0;
+pub const ENTRY_SPACING: f32 = 4.0;
 
 impl<Db: DbTrait> AppState<Db> {
     pub fn quick_settings_view(&self) -> Element<'_, AppMsg> {
@@ -313,7 +319,7 @@ impl<Db: DbTrait> AppState<Db> {
                 }),
             });
 
-        let btn: Element<_> = btn.width(Length::Fill).into();
+        let btn: Element<_> = btn.width(Length::Fill).height(Length::Fixed(ENTRY_HEIGHT)).into();
 
         let content: Element<_> = if entry.is_favorite() {
             Stack::new()
