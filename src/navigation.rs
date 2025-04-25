@@ -12,6 +12,8 @@ use cosmic::iced::{
 pub enum EventMsg {
     Next,
     Previous,
+    Last,
+    First,
     Enter,
     Quit,
     Event(cosmic::iced::keyboard::key::Named),
@@ -33,7 +35,7 @@ pub fn sub() -> Subscription<EventMsg> {
             Event::Keyboard(KeyPressed {
                 key:
                     Key::Named(
-                        named @ (Named::Enter | Named::Escape | Named::ArrowDown | Named::ArrowUp),
+                        named @ (Named::Enter | Named::Escape | Named::ArrowDown | Named::ArrowUp | Named::Home | Named::End),
                     ),
                 ..
             }),

@@ -94,6 +94,21 @@ impl<Db: DbTrait> AppState<Db> {
         self.update_scroll(false)
     }
 
+    fn focus_last(&mut self) -> Task<AppMsg> {
+        if self.db.len() > 0 {
+            self.focused = self.db.len()-1;
+        }
+        self.update_scroll(true)
+    }
+
+    fn focus_first(&mut self) -> Task<AppMsg> {
+        if self.db.len() > 0 {
+            self.focused = 0;
+        }
+        self.update_scroll(false)
+    }
+
+
     fn update_scroll(&mut self, scroll_down: bool) -> Task<AppMsg> {
         let y = self.focused as f32 * (ENTRY_HEIGHT + ENTRY_SPACING);
         let (view_top, view_bottom) = self.scroll_viewport;
@@ -362,6 +377,8 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
                         Named::Escape => EventMsg::Quit,
                         Named::ArrowDown => EventMsg::Next,
                         Named::ArrowUp => EventMsg::Previous,
+                        Named::End => EventMsg::Last,
+                        Named::Home => EventMsg::First,
                         _ => EventMsg::None,
                     };
 
@@ -372,6 +389,12 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
                 }
                 EventMsg::Previous => {
                     return self.focus_previous();
+                }
+                EventMsg::Last => {
+                    return self.focus_last();
+                }
+                EventMsg::First => {
+                    return self.focus_first();
                 }
                 EventMsg::Enter => {
                     if matches!(
