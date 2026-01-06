@@ -75,15 +75,17 @@ impl<Db: DbTrait> AppState<Db> {
             .push(
                 container(
                     row()
-                        .push(
+                        .push({
+                            let focused_id = self.db.get(self.focused).map(|d| d.id());
                             text_input::search_input(fl!("search_entries"), self.db.get_query())
                                 .always_active()
                                 .on_input(AppMsg::Search)
                                 .on_paste(AppMsg::Search)
                                 .on_clear(AppMsg::Search("".into()))
-                                .width(Length::Fill),
-                        )
-                        .push(horizontal_space().width(4))
+                                .on_submit_maybe(focused_id.map(|id| move |_| AppMsg::Copy(id)))
+                                .width(Length::Fill)
+                        })
+                        .push(horizontal_space().width(5)),
                 )
                 .padding(padding::all(16f32).bottom(0)),
             )

@@ -27,11 +27,12 @@ use crate::message::{AppMsg, ConfigMsg, ContextMenuMsg};
 use crate::navigation::EventMsg;
 use crate::utils::task_message;
 use crate::view::{ENTRY_HEIGHT, ENTRY_SPACING, SCROLLABLE_ID};
-use crate::{clipboard, clipboard_watcher, config, navigation};
+use crate::{clipboard, clipboard_watcher, config, ipc, navigation};
 
 use cosmic::cosmic_config;
 use std::sync::atomic::{self};
 use std::time::Duration;
+use cosmic::iced_runtime::platform_specific::wayland::layer_surface::SctkLayerSurfaceSettings;
 use cosmic::iced_widget::scrollable::AbsoluteOffset;
 
 pub const QUALIFIER: &str = "io.github";
@@ -51,6 +52,7 @@ pub struct AppState<Db: DbTrait> {
     last_quit: Option<(i64, PopupKind)>,
     pub preferred_mime_types_regex: Vec<Regex>,
     pub scroll_viewport: (f32, f32),
+    last_signal_content: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -168,7 +170,13 @@ impl<Db: DbTrait> AppState<Db> {
 
             self.last_quit = Some((Utc::now().timestamp_millis(), popup.kind));
 
-            destroy_popup(popup.id)
+            // Popup now always uses layer surface for reliable keyboard focus
+            if popup.kind == PopupKind::Popup {
+                destroy_layer_surface(popup.id)
+            } else {
+                // QuickSettings still uses popup
+                destroy_popup(popup.id)
+            }
         } else {
             Task::none()
         }
@@ -192,20 +200,19 @@ impl<Db: DbTrait> AppState<Db> {
 
         match kind {
             PopupKind::Popup => {
-                let mut popup_settings = self.core.applet.get_popup_settings(
-                    self.core.main_window_id().unwrap(),
-                    new_id,
-                    None,
-                    None,
-                    None,
-                );
-
-                popup_settings.positioner.size_limits = Limits::NONE
-                    .min_width(300.0)
-                    .max_width(400.0)
-                    .min_height(200.0)
-                    .max_height(500.0);
-                get_popup(popup_settings)
+                // Always use layer surface for external toggles to ensure keyboard focus
+                // Popups don't reliably receive keyboard focus when opened programmatically
+                get_layer_surface(SctkLayerSurfaceSettings {
+                    id: new_id,
+                    keyboard_interactivity: KeyboardInteractivity::Exclusive,
+                    anchor:
+                        // Position at top-right for vertical layout
+                        layer_surface::Anchor::TOP | layer_surface::Anchor::RIGHT,
+                    namespace: "clipboard manager".into(),
+                    size:                         Some((Some(400), Some(530))),
+                    size_limits: Limits::NONE.min_width(1.0).min_height(1.0),
+                    ..Default::default()
+                })
             }
             PopupKind::QuickSettings => {
                 let mut popup_settings = self.core.applet.get_popup_settings(
@@ -270,6 +277,7 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
                 })
                 .collect(),
             config,
+            last_signal_content: None,
         };
 
         #[cfg(debug_assertions)]
@@ -305,6 +313,22 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
         }
 
         match message {
+            AppMsg::CheckSignalFile => {
+                // Only check signal file if XDG_RUNTIME_DIR is set
+                if let Some(signal_file) = ipc::get_signal_file_path() {
+                    if let Ok(content) = std::fs::read_to_string(&signal_file) {
+                        if self.last_signal_content.as_ref() != Some(&content) {
+                            self.last_signal_content = Some(content);
+
+                            // Clear last_quit for external toggles to ensure it works
+                            self.last_quit = None;
+
+                            // Toggle the popup using the existing toggle_popup function
+                            return self.toggle_popup(PopupKind::Popup);
+                        }
+                    }
+                }
+            }
             AppMsg::ChangeConfig(config) => {
                 if config.private_mode != self.config.private_mode {
                     PRIVATE_MODE.store(config.private_mode, atomic::Ordering::Relaxed);
@@ -550,6 +574,7 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
             config::sub(),
             navigation::sub().map(AppMsg::Navigation),
             db_sub().map(AppMsg::Db),
+            ipc::signal_file_watcher(),
         ];
 
         if !self.clipboard_state.is_error() {

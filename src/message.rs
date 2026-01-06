@@ -28,7 +28,8 @@ pub enum AppMsg {
     RemoveFavorite(EntryId),
     ContextMenu(ContextMenuMsg),
     LinkClicked(markdown::Url),
-    ViewportChanged(Viewport)
+    ViewportChanged(Viewport),
+    CheckSignalFile,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Copy)]
