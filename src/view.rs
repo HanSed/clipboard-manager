@@ -352,9 +352,7 @@ impl<Db: DbTrait> AppState<Db> {
                 button::text(fl!("show_qr_code")).on_press(ContextMenuMsg::ShowQrCode(entry.id())),
             )
             .push(
-                button::text(fl!("delete_entry"))
-                    .on_press(ContextMenuMsg::Delete(entry.id()))
-                    .class(Button::Destructive),
+                button::text(fl!("delete_entry")).on_press(ContextMenuMsg::Delete(entry.id()))
             )
             .apply(Element::from)
             .map(AppMsg::ContextMenu);
