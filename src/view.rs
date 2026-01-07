@@ -120,10 +120,9 @@ impl<Db: DbTrait> AppState<Db> {
                             .spacing(4f32)
                             .padding(padding::right(8));
 
-                        scrollable(column)
-                            // .id(SCROLLABLE_ID.clone())
-                            // XXX: why ?
-                            // .height(Length::FillPortion(2))
+                    scrollable(column)
+                        .id(SCROLLABLE_ID.clone())
+                        .on_scroll(|v|AppMsg::ViewportChanged(v))
                 })
                 .padding(padding::all(16).top(0)),
             )
