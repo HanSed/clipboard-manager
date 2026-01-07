@@ -30,7 +30,7 @@ pub fn formatted_value(value: &str, max_lines: usize, max_chars: usize) -> Cow<'
             lines_count += 1;
         }
 
-        str.push_str("...");
+        str.push_str(" ...");
 
         Cow::from(str)
     }

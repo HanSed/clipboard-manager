@@ -1,24 +1,30 @@
 use std::{borrow::Cow, cmp::min, sync::LazyLock};
 
+use cosmic::iced::{widget, Alignment};
+use cosmic::iced_widget::{markdown, vertical_space};
+use cosmic::widget::Id;
 use cosmic::{
     iced::{alignment::Horizontal, padding, Length}, iced_widget::Stack,
     theme::Button,
     widget::{
         button::{self},
-        column, container, horizontal_space, image, row, scrollable, text, text_input,
-        toggler,
+        column, container, horizontal_space, image, row, scrollable, text, text_input, toggler,
     },
     Apply,
     Element,
 };
-use cosmic::iced::{widget, Alignment};
-use cosmic::iced_widget::{markdown, vertical_space};
-use cosmic::widget::Id;
 use itertools::Itertools;
 
-use crate::{app::{AppState, ClipboardState}, db::{Content, DbTrait, EntryTrait}, fl, icon_button, message::{AppMsg, ConfigMsg, ContextMenuMsg}, my_widget, utils::formatted_value};
 use crate::app::ErrorState;
 use crate::db::MimeDataMap;
+use crate::{
+    app::{AppState, ClipboardState},
+    db::{Content, DbTrait, EntryTrait},
+    fl, icon_button,
+    message::{AppMsg, ConfigMsg, ContextMenuMsg},
+    my_widget,
+    utils::formatted_value,
+};
 
 pub static SCROLLABLE_ID: LazyLock<Id> = LazyLock::new(|| Id::new("scrollable"));
 
@@ -65,7 +71,7 @@ impl<Db: DbTrait> AppState<Db> {
         } else {
             self.list_view()
         })
-        .height(            Length::Fixed(530f32))
+        .height(Length::Fixed(530f32))
         .width(Length::Fixed(400f32))
         .into()
     }
@@ -115,14 +121,13 @@ impl<Db: DbTrait> AppState<Db> {
                         })
                         .collect();
 
-
-                        let column = column::with_children(entries_view)
-                            .spacing(4f32)
-                            .padding(padding::right(8));
+                    let column = column::with_children(entries_view)
+                        .spacing(4f32)
+                        .padding(padding::right(8));
 
                     scrollable(column)
                         .id(SCROLLABLE_ID.clone())
-                        .on_scroll(|v|AppMsg::ViewportChanged(v))
+                        .on_scroll(|v| AppMsg::ViewportChanged(v))
                 })
                 .padding(padding::all(16).top(0)),
             )
@@ -267,7 +272,7 @@ impl<Db: DbTrait> AppState<Db> {
         is_focused: bool,
         content: &'a str,
     ) -> Element<'a, AppMsg> {
-        self.base_entry(entry, is_focused, text(formatted_value(content, 5, 200)))
+        self.base_entry(entry, is_focused, text(formatted_value(content, 3, 200)))
     }
 
     fn base_entry<'a>(
@@ -320,7 +325,10 @@ impl<Db: DbTrait> AppState<Db> {
                 }),
             });
 
-        let btn: Element<_> = btn.width(Length::Fill).height(Length::Fixed(ENTRY_HEIGHT)).into();
+        let btn: Element<_> = btn
+            .width(Length::Fill)
+            .height(Length::Fixed(ENTRY_HEIGHT))
+            .into();
 
         let content: Element<_> = if entry.is_favorite() {
             Stack::new()
@@ -350,9 +358,7 @@ impl<Db: DbTrait> AppState<Db> {
             .push(
                 button::text(fl!("show_qr_code")).on_press(ContextMenuMsg::ShowQrCode(entry.id())),
             )
-            .push(
-                button::text(fl!("delete_entry")).on_press(ContextMenuMsg::Delete(entry.id()))
-            )
+            .push(button::text(fl!("delete_entry")).on_press(ContextMenuMsg::Delete(entry.id())))
             .apply(Element::from)
             .map(AppMsg::ContextMenu);
 
