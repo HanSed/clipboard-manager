@@ -1,8 +1,8 @@
 use std::{
     io::Read,
     sync::{
-        Arc,
         atomic::{self},
+        Arc,
     },
 };
 
@@ -141,55 +141,3 @@ pub fn sub() -> impl Stream<Item = ClipboardMessage> {
         }
     })
 }
-
-// unfold experiment, doesn't work with channel, but better error management
-/*
-
-enum State {
-    Init,
-    Idle(paste_watch::Watcher),
-    Error,
-}
-
-pub fn sub2() -> Subscription<Message> {
-    struct Connect;
-
-    subscription::unfold(
-        std::any::TypeId::of::<Connect>(),
-        State::Init,
-        |state| {
-
-            async move {
-                match state {
-                    State::Init => {
-                        match paste_watch::Watcher::init(paste_watch::ClipboardType::Regular) {
-                            Ok(watcher) => {
-                                return (Message::Connected, State::Idle(watcher));
-                            }
-                            Err(e) => {
-                                return (Message::Error(e), State::Error);
-                            }
-                        }
-                    }
-                    State::Idle(watcher) => {
-
-                        let e = watcher.start_watching2(
-                            paste_watch::Seat::Unspecified,
-                            paste_watch::MimeType::Any,
-                        );
-
-
-                        todo!()
-                    }
-
-                    State::Error => {
-                        // todo
-                        todo!()
-                    }
-                }
-            }
-        },
-    )
-}
-
- */

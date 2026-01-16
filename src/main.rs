@@ -2,11 +2,14 @@
 // #![allow(unused_macros)]
 // #![allow(unused_imports)]
 
+#[allow(unused_imports)]
+#[macro_use]
+extern crate tracing;
 use app::{AppState, Flags};
-use config::{CONFIG_VERSION, Config};
+use config::{Config, CONFIG_VERSION};
 use cosmic::cosmic_config;
 use cosmic::cosmic_config::CosmicConfigEntry;
-use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 mod app;
 mod clipboard;
@@ -21,10 +24,6 @@ mod my_widget;
 mod navigation;
 mod utils;
 mod view;
-
-#[allow(unused_imports)]
-#[macro_use]
-extern crate tracing;
 
 fn setup_logs() {
     let fmt_layer = fmt::layer().with_target(true);
@@ -100,13 +99,10 @@ fn main() {
 
     let (config_handler, config) = match cosmic_config::Config::new(app::APPID, CONFIG_VERSION) {
         Ok(config_handler) => {
-            let config = match Config::get_entry(&config_handler) {
-                Ok(ok) => ok,
-                Err((errs, config)) => {
-                    error!("errors loading config: {:?}", errs);
-                    config
-                }
-            };
+            let config = Config::get_entry(&config_handler).unwrap_or_else(|(errs, config)| {
+                error!("errors loading config: {:?}", errs);
+                config
+            });
             (config_handler, config)
         }
         Err(err) => {

@@ -1,11 +1,10 @@
 use cosmic::iced::{
     event::{
-        self,
-        wayland::{self, LayerEvent},
+        self, wayland::{self, LayerEvent},
         PlatformSpecific,
-    },
-    keyboard::{key::Named, Event::KeyPressed, Key},
-    Event, Subscription,
+    }, keyboard::{key::Named, Event::KeyPressed, Key},
+    Event,
+    Subscription,
 };
 
 #[derive(Debug, Clone)]
@@ -35,7 +34,12 @@ pub fn sub() -> Subscription<EventMsg> {
             Event::Keyboard(KeyPressed {
                 key:
                     Key::Named(
-                        named @ (Named::Enter | Named::Escape | Named::ArrowDown | Named::ArrowUp | Named::Home | Named::End),
+                        named @ (Named::Enter
+                        | Named::Escape
+                        | Named::ArrowDown
+                        | Named::ArrowUp
+                        | Named::Home
+                        | Named::End),
                     ),
                 ..
             }),

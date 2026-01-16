@@ -1,13 +1,13 @@
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use cosmic::iced_core::image::Handle;
 use cosmic::widget::image;
 use fslock::LockFile;
 use futures::StreamExt;
 use nucleo::{
-    Matcher, Utf32Str,
-    pattern::{Atom, AtomKind, CaseMatching, Normalization},
+    pattern::{Atom, AtomKind, CaseMatching, Normalization}, Matcher,
+    Utf32Str,
 };
-use sqlx::{Sqlite, SqliteConnection, migrate::MigrateDatabase, prelude::*};
+use sqlx::{migrate::MigrateDatabase, prelude::*, Sqlite, SqliteConnection};
 use std::cell::OnceCell;
 use std::{
     cell::RefCell,
@@ -23,7 +23,7 @@ use crate::{
     utils::{self},
 };
 
-use super::{DbMessage, DbTrait, EntryId, EntryTrait, MimeDataMap, PRIV_MIME_TYPES_SIMPLE, now};
+use super::{now, DbMessage, DbTrait, EntryId, EntryTrait, MimeDataMap, PRIV_MIME_TYPES_SIMPLE};
 
 type Time = i64;
 
@@ -406,13 +406,10 @@ impl DbTrait for DbSqlite {
         Ok(())
     }
 
-    fn get_from_id(&self, id: EntryId) -> Option<&Self::Entry> {
-        self.entries.get(&id)
-    }
-
     async fn insert(&mut self, data: MimeDataMap) -> Result<()> {
         self.insert_with_time(data, now()).await
     }
+
     async fn insert_with_time(&mut self, data: MimeDataMap, now: i64) -> Result<()> {
         if !self.lock.owns_lock() {
             info!("db already locked");
@@ -485,7 +482,6 @@ impl DbTrait for DbSqlite {
         self.search();
         Ok(())
     }
-
     async fn delete(&mut self, id: EntryId) -> Result<()> {
         let query = r#"
             DELETE FROM ClipboardEntries
@@ -653,6 +649,10 @@ impl DbTrait for DbSqlite {
 
     fn get(&self, index: usize) -> Option<&Self::Entry> {
         self.iter().nth(index)
+    }
+
+    fn get_from_id(&self, id: EntryId) -> Option<&Self::Entry> {
+        self.entries.get(&id)
     }
 
     fn iter(&self) -> impl Iterator<Item = &'_ Self::Entry> {

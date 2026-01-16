@@ -1,15 +1,15 @@
 use cosmic::{
-    Theme,
-    iced::{self, Background, Border, Color, Shadow, keyboard, touch},
-    iced_core::{Size, Vector, widget::tree},
+    iced::{self, keyboard, touch, Background, Border, Color, Shadow},
+    iced_core::{widget::tree, Size, Vector},
     iced_widget,
+    Theme,
 };
 use iced_widget::core::{
-    Clipboard, Element, Event, Layout, Length, Point, Rectangle, Shell, Widget, event,
-    layout::{Limits, Node},
-    mouse::{self, Cursor},
-    overlay, renderer,
-    widget::{Operation, Tree},
+    event, layout::{Limits, Node}, mouse::{self, Cursor}, overlay, renderer, widget::{Operation, Tree}, Clipboard, Element, Event, Layout,
+    Length,
+    Point,
+    Rectangle, Shell,
+    Widget,
 };
 
 use cosmic::iced::{event::Status, window};

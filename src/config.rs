@@ -1,7 +1,4 @@
-use std::{
-    sync::atomic::AtomicBool,
-    time::Duration,
-};
+use std::{sync::atomic::AtomicBool, time::Duration};
 
 // #[cfg(test)]
 // use configurator_schema::schemars;
@@ -9,7 +6,7 @@ use std::{
 // use configurator_schema::schemars::JsonSchema;
 
 use cosmic::{
-    cosmic_config::{self, CosmicConfigEntry, cosmic_config_derive::CosmicConfigEntry},
+    cosmic_config::{self, cosmic_config_derive::CosmicConfigEntry, CosmicConfigEntry},
     iced::Subscription,
 };
 

@@ -216,9 +216,9 @@ impl<Db: DbTrait> AppState<Db> {
         is_focused: bool,
         image_data: &'a [u8],
     ) -> Element<'a, AppMsg> {
-        let handle = entry.cached_image().get_or_init(||{
-            image::Handle::from_bytes(image_data.to_owned())   
-        });
+        let handle = entry
+            .cached_image()
+            .get_or_init(|| image::Handle::from_bytes(image_data.to_owned()));
 
         self.base_entry(entry, is_focused, image(handle).width(Length::Fill))
     }
@@ -372,36 +372,3 @@ impl<Db: DbTrait> AppState<Db> {
         my_widget::context_menu(content, overlay).into()
     }
 }
-
-/*
-let items = vec![
-            if entry.is_favorite() {
-                menu::Item::Button(
-                    fl!("remove_favorite"),
-                    None,
-                    ContextMenuMsg::RemoveFavorite(entry.id()),
-                )
-            } else {
-                menu::Item::Button(
-                    fl!("add_favorite"),
-                    None,
-                    ContextMenuMsg::AddFavorite(entry.id()),
-                )
-            },
-            menu::Item::Button(
-                fl!("show_qr_code"),
-                None,
-                ContextMenuMsg::ShowQrCode(entry.id()),
-            ),
-            menu::Item::Button(
-                fl!("delete_entry"),
-                None,
-                ContextMenuMsg::Delete(entry.id()),
-            ),
-        ];
-
-        let tree = menu::items(&HashMap::new(), items);
-
-        context_menu(content, Some(tree)).into()
-
-*/

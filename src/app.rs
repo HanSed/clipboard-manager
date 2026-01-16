@@ -10,14 +10,14 @@ use cosmic::iced_futures::Subscription;
 use cosmic::iced_runtime::core::window;
 use cosmic::iced_widget::qr_code;
 use cosmic::iced_winit::commands::layer_surface::{
-    self, KeyboardInteractivity, destroy_layer_surface, get_layer_surface,
+    self, destroy_layer_surface, get_layer_surface, KeyboardInteractivity,
 };
 use cosmic::iced_winit::commands::popup::{destroy_popup, get_popup};
 use cosmic::widget::{MouseArea, Space};
 
-use cosmic::{Element, app::Task};
-use futures::StreamExt;
+use cosmic::{app::Task, Element};
 use futures::executor::block_on;
+use futures::StreamExt;
 use regex::Regex;
 
 use crate::clipboard::ClipboardError;
@@ -30,10 +30,10 @@ use crate::view::{ENTRY_HEIGHT, ENTRY_SPACING, SCROLLABLE_ID};
 use crate::{clipboard, clipboard_watcher, config, ipc, navigation};
 
 use cosmic::cosmic_config;
-use std::sync::atomic::{self};
-use std::time::Duration;
 use cosmic::iced_runtime::platform_specific::wayland::layer_surface::SctkLayerSurfaceSettings;
 use cosmic::iced_widget::scrollable::AbsoluteOffset;
+use std::sync::atomic::{self};
+use std::time::Duration;
 
 pub const QUALIFIER: &str = "io.github";
 pub const ORG: &str = "cosmic_utils";
@@ -109,7 +109,7 @@ impl<Db: DbTrait> AppState<Db> {
 
     fn focus_last(&mut self) -> Task<AppMsg> {
         if self.db.len() > 0 {
-            self.focused = self.db.len()-1;
+            self.focused = self.db.len() - 1;
         }
         self.update_scroll(true)
     }
@@ -120,7 +120,6 @@ impl<Db: DbTrait> AppState<Db> {
         }
         self.update_scroll(false)
     }
-
 
     fn update_scroll(&mut self, scroll_down: bool) -> Task<AppMsg> {
         let y = self.focused as f32 * (ENTRY_HEIGHT + ENTRY_SPACING);
@@ -138,7 +137,7 @@ impl<Db: DbTrait> AppState<Db> {
                 AbsoluteOffset {
                     x: 0.0,
                     // y - entry_height - viewport_height => align bottom of this entry to the bottom of viewport
-                    y: y + ENTRY_HEIGHT - (view_bottom - view_top) ,
+                    y: y + ENTRY_HEIGHT - (view_bottom - view_top),
                 },
             )
         } else {
@@ -264,7 +263,7 @@ impl<Db: DbTrait + 'static> cosmic::Application for AppState<Db> {
             focused: 0,
             qr_code: None,
             last_quit: None,
-            scroll_viewport: (0.0,0.0),
+            scroll_viewport: (0.0, 0.0),
             preferred_mime_types_regex: config
                 .preferred_mime_types
                 .iter()

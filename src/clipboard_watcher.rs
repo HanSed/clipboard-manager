@@ -12,13 +12,13 @@ use cosmic::cctk::{
         zwlr_data_control_offer_v1::{self, ZwlrDataControlOfferV1},
     },
     wayland_client::{
-        self, ConnectError, Connection, Dispatch, DispatchError, EventQueue, Proxy,
-        delegate_dispatch, event_created_child,
-        globals::{BindError, GlobalError, GlobalListContents, registry_queue_init},
-        protocol::{
+        self, delegate_dispatch, event_created_child, globals::{registry_queue_init, BindError, GlobalError, GlobalListContents}, protocol::{
             wl_registry::WlRegistry,
             wl_seat::{self, WlSeat},
-        },
+        }, ConnectError, Connection,
+        Dispatch, DispatchError,
+        EventQueue,
+        Proxy,
     },
 };
 
