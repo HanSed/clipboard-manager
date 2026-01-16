@@ -1,8 +1,9 @@
 use std::{collections::HashMap, fmt::Debug, path::Path, sync::LazyLock};
-
+use std::cell::OnceCell;
 use anyhow::Result;
 
 use chrono::Utc;
+use cosmic::iced_widget::image;
 use regex::Regex;
 
 use crate::config::Config;
@@ -91,6 +92,8 @@ pub trait EntryTrait: Debug + Clone + Send {
 
     #[allow(dead_code)]
     fn into_raw_content(self) -> MimeDataMap;
+
+    fn cached_image(&self) -> &OnceCell<image::Handle>;
 
     fn id(&self) -> EntryId;
 

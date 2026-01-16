@@ -127,6 +127,7 @@ impl<Db: DbTrait> AppState<Db> {
 
                     scrollable(column)
                         .id(SCROLLABLE_ID.clone())
+                        .id(SCROLLABLE_ID.clone())
                         .on_scroll(|v| AppMsg::ViewportChanged(v))
                 })
                 .padding(padding::all(16).top(0)),
@@ -215,7 +216,9 @@ impl<Db: DbTrait> AppState<Db> {
         is_focused: bool,
         image_data: &'a [u8],
     ) -> Element<'a, AppMsg> {
-        let handle = image::Handle::from_bytes(image_data.to_owned());
+        let handle = entry.cached_image().get_or_init(||{
+            image::Handle::from_bytes(image_data.to_owned())   
+        });
 
         self.base_entry(entry, is_focused, image(handle).width(Length::Fill))
     }

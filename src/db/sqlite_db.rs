@@ -1,18 +1,20 @@
+use anyhow::{Result, anyhow};
+use cosmic::iced_core::image::Handle;
+use cosmic::widget::image;
 use fslock::LockFile;
 use futures::StreamExt;
+use nucleo::{
+    Matcher, Utf32Str,
+    pattern::{Atom, AtomKind, CaseMatching, Normalization},
+};
 use sqlx::{Sqlite, SqliteConnection, migrate::MigrateDatabase, prelude::*};
+use std::cell::OnceCell;
 use std::{
     cell::RefCell,
     collections::{BTreeMap, HashMap, HashSet},
     fmt::Debug,
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
-};
-
-use anyhow::{Result, anyhow};
-use nucleo::{
-    Matcher, Utf32Str,
-    pattern::{Atom, AtomKind, CaseMatching, Normalization},
 };
 
 use crate::{
@@ -58,6 +60,7 @@ pub struct Entry {
     // todo: lazelly load image in memory, since we can't search them anyways?
     /// (Mime, Content)
     pub raw_content: MimeDataMap,
+    pub image_handle: OnceCell<image::Handle>,
     pub is_favorite: bool,
 }
 
@@ -153,6 +156,10 @@ impl EntryTrait for Entry {
 
     fn into_raw_content(self) -> MimeDataMap {
         self.raw_content
+    }
+
+    fn cached_image(&self) -> &OnceCell<Handle> {
+        &self.image_handle
     }
 }
 
@@ -355,6 +362,7 @@ impl DbTrait for DbSqlite {
                     creation,
                     raw_content: MimeDataMap::default(),
                     is_favorite: self.favorites.contains(&id),
+                    image_handle: OnceCell::new(),
                 };
 
                 self.entries.insert(id, entry);
@@ -466,6 +474,7 @@ impl DbTrait for DbSqlite {
                 creation: now,
                 raw_content: data,
                 is_favorite: false,
+                image_handle: OnceCell::new(),
             };
 
             self.times.insert(entry.creation, id);
@@ -652,7 +661,13 @@ impl DbTrait for DbSqlite {
             .map(|id| &self.entries[id])
             .filter(|e| !e.is_favorite)
             .rev()
-            .chain(self.favorites.fav().iter().map(|id| &self.entries[id]).rev())
+            .chain(
+                self.favorites
+                    .fav()
+                    .iter()
+                    .map(|id| &self.entries[id])
+                    .rev(),
+            )
     }
 
     fn search_iter(&self) -> impl Iterator<Item = &'_ Self::Entry> {
