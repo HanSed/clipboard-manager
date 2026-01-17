@@ -13,6 +13,7 @@ use cosmic::{
     Apply,
     Element,
 };
+use cosmic::iced_core::text::Wrapping;
 use itertools::Itertools;
 
 use crate::app::ErrorState;
@@ -275,7 +276,7 @@ impl<Db: DbTrait> AppState<Db> {
         is_focused: bool,
         content: &'a str,
     ) -> Element<'a, AppMsg> {
-        self.base_entry(entry, is_focused, text(formatted_value(content, 3, 200)))
+        self.base_entry(entry, is_focused, text(formatted_value(content, 4, 200)).wrapping(Wrapping::None))
     }
 
     fn base_entry<'a>(
@@ -284,7 +285,7 @@ impl<Db: DbTrait> AppState<Db> {
         is_focused: bool,
         content: impl Into<Element<'a, AppMsg>>,
     ) -> Element<'a, AppMsg> {
-        let btn = button::custom(content)
+        let btn = button::custom(container(content).clip(true))
             .on_press(AppMsg::Copy(entry.id()))
             .padding([8, 16])
             .class(Button::Custom {
